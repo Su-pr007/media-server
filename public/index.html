@@ -31,6 +31,38 @@
         .btn:hover {
             background-color: #45a049;
         }
+        .code {
+            background-color: #ccc;
+            border-radius: 5px;
+            padding: .3em;
+        }
+        .alert {
+            display: flex;
+            padding: .5em;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+
+            position: fixed;
+            bottom: 1em;
+            right: 1em;
+            z-index: 1;
+            animation: alert 6s ease-in-out forwards;
+        }
+
+        @keyframes alert {
+            from, to {
+                transform: translateY(10vh);
+                opacity: 0;
+            }
+            2%, 90% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        #generateCommand {
+            cursor: pointer;
+        }
         #preview {
             margin-top: 20px;
             max-width: 100%;
@@ -95,6 +127,7 @@
     <div id="result" class="result">
         <p>Изображение успешно загружено!</p>
         <p>Ссылка: <a id="imageUrl" href="#" target="_blank"></a></p>
+        <p>Команда для генерации: <span id="generateCommand" class="code"></span></p>
         <img id="preview" src="" alt="Preview">
     </div>
 
@@ -111,6 +144,7 @@
         const fileName = document.getElementById('fileName');
         const resultDiv = document.getElementById('result');
         const imageUrl = document.getElementById('imageUrl');
+        const generateCommand = document.getElementById('generateCommand');
         const preview = document.getElementById('preview');
         const gallery = document.getElementById('gallery');
 
@@ -169,6 +203,8 @@
                     const data = await response.json();
                     imageUrl.href = data.url;
                     imageUrl.textContent = window.location.origin + data.url;
+                    const replaceRegex = new RegExp('^/');
+                    generateCommand.textContent = '/image2map preview ' + data.url.replace(replaceRegex, '');
                     preview.src = data.url;
                     preview.style.display = 'block';
                     resultDiv.style.display = 'block';
@@ -185,6 +221,32 @@
                 alert('Произошла ошибка');
             }
         };
+
+        generateCommand.onclick = () => {
+            setClipboard(generateCommand.textContent);
+            showAlert('Скопировано в буфер обмена');
+        };
+
+        const showAlert = (text) => {
+            const alertBlock = document.createElement('div');
+            alertBlock.className = 'alert';
+            alertBlock.innerText = text;
+
+            document.body.append(alertBlock);
+
+            setTimeout(() => {
+                alertBlock.remove();
+            }, 5000)
+        };
+
+        async function setClipboard(text) {
+            const type = "text/plain";
+            const clipboardItemData = {
+                [type]: text,
+            };
+            const clipboardItem = new ClipboardItem(clipboardItemData);
+            await navigator.clipboard.write([clipboardItem]);
+        }
     </script>
 </body>
 </html>
