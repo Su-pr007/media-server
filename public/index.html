@@ -223,8 +223,13 @@
         };
 
         generateCommand.onclick = () => {
-            setClipboard(generateCommand.textContent);
-            showAlert('Скопировано в буфер обмена');
+            try {
+                setClipboard(generateCommand.textContent);
+                showAlert('Скопировано в буфер обмена');
+            } catch (exception) {
+                showAlert('Ошибка сохранения в буфер');
+                console.error(exception.message);
+            }
         };
 
         const showAlert = (text) => {
