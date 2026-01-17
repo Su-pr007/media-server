@@ -36,6 +36,9 @@ func main() {
 	// Обработчик загрузки изображений
 	http.HandleFunc("/upload", uploadHandler)
 
+	// Обработчик для получения списка файлов
+	http.HandleFunc("/files", listFilesHandler)
+
 	port := ":8080"
 	fmt.Printf("Сервер запущен на http://localhost%s\n", port)
 	log.Fatal(http.ListenAndServe(port, nil))
@@ -84,4 +87,22 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	url := fmt.Sprintf("/img/%s", newFileName)
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(UploadResponse{URL: url})
+}
+
+func listFilesHandler(w http.ResponseWriter, r *http.Request) {
+	files, err := os.ReadDir(uploadDir)
+	if err != nil {
+		http.Error(w, "Ошибка чтения директории", http.StatusInternalServerError)
+		return
+	}
+
+	var fileList []string
+	for _, file := range files {
+		if !file.IsDir() && file.Name() != ".gitignore" {
+			fileList = append(fileList, "/img/"+file.Name())
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(fileList)
 }

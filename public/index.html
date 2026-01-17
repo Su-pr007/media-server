@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            max-width: 800px;
+            max-width: 1000px;
             margin: 0 auto;
             padding: 20px;
             text-align: center;
@@ -17,6 +17,7 @@
             padding: 40px;
             border-radius: 10px;
             background-color: #f9f9f9;
+            margin-bottom: 40px;
         }
         .btn {
             background-color: #4CAF50;
@@ -40,6 +41,43 @@
             padding: 10px;
             border: 1px solid #ddd;
             display: none;
+            margin-bottom: 20px;
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+            text-align: left;
+        }
+        .gallery-item {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+        }
+        .gallery-item a {
+            display: block;
+            padding: 10px;
+            text-decoration: none;
+            color: #333;
+            font-size: 12px;
+            word-break: break-all;
+            background: #fff;
+        }
+        h2 {
+            border-bottom: 2px solid #4CAF50;
+            padding-bottom: 10px;
+            display: inline-block;
         }
     </style>
 </head>
@@ -60,6 +98,13 @@
         <img id="preview" src="" alt="Preview">
     </div>
 
+    <hr>
+
+    <h2>Каталог файлов</h2>
+    <div id="gallery" class="gallery">
+        <!-- Файлы будут загружены сюда -->
+    </div>
+
     <script>
         const form = document.getElementById('uploadForm');
         const input = document.getElementById('imageInput');
@@ -67,6 +112,36 @@
         const resultDiv = document.getElementById('result');
         const imageUrl = document.getElementById('imageUrl');
         const preview = document.getElementById('preview');
+        const gallery = document.getElementById('gallery');
+
+        // Функция для загрузки списка файлов
+        async function loadGallery() {
+            try {
+                const response = await fetch('/files');
+                if (response.ok) {
+                    const files = await response.json();
+                    gallery.innerHTML = '';
+                    if (files && files.length > 0) {
+                        files.forEach(url => {
+                            const item = document.createElement('div');
+                            item.className = 'gallery-item';
+                            item.innerHTML = `
+                                <img src="${url}" alt="Image">
+                                <a href="${url}" target="_blank">${url}</a>
+                            `;
+                            gallery.appendChild(item);
+                        });
+                    } else {
+                        gallery.innerHTML = '<p>Файлов пока нет</p>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+            }
+        }
+
+        // Загружаем галерею при загрузке страницы
+        loadGallery();
 
         input.onchange = () => {
             if (input.files.length > 0) {
@@ -97,6 +172,11 @@
                     preview.src = data.url;
                     preview.style.display = 'block';
                     resultDiv.style.display = 'block';
+
+                    // Обновляем галерею после успешной загрузки
+                    loadGallery();
+                    form.reset();
+                    fileName.textContent = '';
                 } else {
                     alert('Ошибка при загрузке');
                 }
