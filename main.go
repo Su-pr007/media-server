@@ -13,8 +13,9 @@ import (
 )
 
 const (
+	publicDir = "./public"
 	uploadDir = "./public/img"
-	maxSize   = 10 * 1024 * 1024 // 10MB
+	maxSize   = 20 * 1024 * 1024 // 20MB
 )
 
 type UploadResponse struct {
@@ -39,6 +40,9 @@ func main() {
 
 	// Обработчик для получения списка файлов
 	http.HandleFunc("/files", listFilesHandler)
+
+	// Обработчик для получения списка файлов
+	http.HandleFunc("/delete", deleteFileHandler)
 
 	port := ":8080"
 	fmt.Printf("Сервер запущен на http://localhost%s\n", port)
@@ -110,4 +114,17 @@ func listFilesHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(fileList)
+}
+
+func deleteFileHandler(w http.ResponseWriter, r *http.Request) {
+	file := r.URL.Query().Get("file")
+	responseText := "Успешно удалено"
+
+	var e = os.Remove(publicDir + file)
+	if e != nil {
+		responseText = e.Error()
+	}
+
+	w.Header().Set("Location", "/?alert="+responseText)
+	w.WriteHeader(http.StatusSeeOther)
 }
