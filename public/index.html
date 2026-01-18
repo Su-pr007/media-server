@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Медиа-хостинг</title>
     <style>
+        html {
+            scrollbar-gutter: stable;
+        }
         body {
             font-family: Arial, sans-serif;
             max-width: 1000px;
@@ -51,11 +54,20 @@
             text-align: left;
         }
         .gallery-item {
+            display: flex;
+            flex-flow: column nowrap;
             border: 1px solid #eee;
             border-radius: 8px;
             overflow: hidden;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             transition: transform 0.2s;
+            text-decoration: none;
+            color: #333;
+            font-size: 12px;
+            word-break: break-all;
+            background: #fff;
+            user-select: none;
+            -webkit-user-drag: none;
         }
         .gallery-item:hover {
             transform: scale(1.05);
@@ -65,14 +77,12 @@
             height: 150px;
             object-fit: cover;
         }
-        .gallery-item a {
-            display: block;
+        .gallery-item span {
             padding: 10px;
-            text-decoration: none;
-            color: #333;
-            font-size: 12px;
-            word-break: break-all;
-            background: #fff;
+            color: inherit;
+            font-size: inherit;
+            user-select: text;
+            -webkit-user-drag: none;
         }
         h2 {
             border-bottom: 2px solid #4CAF50;
@@ -123,11 +133,13 @@
                     gallery.innerHTML = '';
                     if (files && files.length > 0) {
                         files.forEach(url => {
-                            const item = document.createElement('div');
+                            const item = document.createElement('a');
                             item.className = 'gallery-item';
+                            item.href = url;
+                            item.target = "_blank";
                             item.innerHTML = `
                                 <img src="${url}" alt="Image">
-                                <a href="${url}" target="_blank">${url}</a>
+                                <span>${url}</span>
                             `;
                             gallery.appendChild(item);
                         });

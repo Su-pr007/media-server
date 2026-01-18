@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"time"
 )
 
@@ -95,6 +96,10 @@ func listFilesHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Ошибка чтения директории", http.StatusInternalServerError)
 		return
 	}
+
+	sort.Slice(files, func(i, j int) bool {
+		return true
+	})
 
 	var fileList []string
 	for _, file := range files {
