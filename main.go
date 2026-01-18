@@ -102,7 +102,7 @@ func listFilesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	sort.Slice(files, func(i, j int) bool {
-		return true
+		return files[i].Name() > files[j].Name()
 	})
 
 	var fileList []string
